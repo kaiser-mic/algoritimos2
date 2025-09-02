@@ -43,10 +43,11 @@ class Lista:
                 verificador = verificador.next 
     
         #atual.valor, proximo.valor = proximo.valor, atual.valor
-            temp_data = no_atual.valor
-            no_atual.valor = no_minimo.valor
-            no_minimo.valor = temp_data
-
+            # temp_data = no_atual.valor
+            # no_atual.valor = no_minimo.valor
+            # no_minimo.valor = temp_data
+        
+            no_atual.valor, no_minimo.valor = no_minimo.valor, no_atual.valor
 
 
 
