@@ -12,7 +12,7 @@ def insertion_sort(arr):
     
     
     
-arr = [1,3,5,7,2,3]
+arr = [2,8,5,3,9,4]
 print(arr)
 insertion_sort(arr)
 
