@@ -2,6 +2,7 @@
 Jogo de Damas - Versão Completa com Tkinter
 Criado do zero com interface gráfica moderna
 Funcionalidades: Promoção a Dama, Voo da Dama, Captura Múltipla
+(Versão sem o desenho da árvore de jogadas)
 """
 
 import tkinter as tk
@@ -156,19 +157,18 @@ class JogoDamas:
                                        bg='#2d2d2d', fg='#ffeb3b')
         self.status_label.pack(pady=10)
 
-        tree_frame = tk.Frame(main_frame, bg='#2d2d2d', relief=tk.RAISED, bd=3)
-        tree_frame.pack(side=tk.RIGHT, fill=tk.BOTH, expand=True)
+        # Frame do Log (anteriormente 'tree_frame')
+        log_frame = tk.Frame(main_frame, bg='#2d2d2d', relief=tk.RAISED, bd=3)
+        log_frame.pack(side=tk.RIGHT, fill=tk.BOTH, expand=True)
 
-        tree_title = tk.Label(tree_frame, text="🌳 ÁRVORE DE JOGADAS",
+        # Título do Log
+        log_title = tk.Label(log_frame, text="📜 LOG DE JOGADAS",
                                 font=('Arial', 18, 'bold'),
                                 bg='#2d2d2d', fg='white')
-        tree_title.pack(pady=15)
+        log_title.pack(pady=15)
 
-        self.tree_canvas = tk.Canvas(tree_frame, width=400, height=300,
-                                     bg='#f8f9fa', relief=tk.SUNKEN, bd=3)
-        self.tree_canvas.pack(pady=15)
-
-        tree_buttons_frame = tk.Frame(tree_frame, bg='#2d2d2d')
+        # Botões
+        tree_buttons_frame = tk.Frame(log_frame, bg='#2d2d2d')
         tree_buttons_frame.pack(pady=15)
 
         self.btn_arvore_completa = tk.Button(tree_buttons_frame, text="📊 TODAS JOGADAS",
@@ -177,9 +177,11 @@ class JogoDamas:
                                                relief=tk.RAISED, bd=2, padx=12, pady=6)
         self.btn_arvore_completa.pack(side=tk.LEFT, padx=8)
 
-        self.info_text = scrolledtext.ScrolledText(tree_frame, height=8, width=45,
+        # Área de texto
+        self.info_text = scrolledtext.ScrolledText(log_frame, height=8, width=45,
                                                    bg='#1a1a1a', fg='white',
                                                    font=('Consolas', 10))
+        # Fazer o log preencher o espaço restante
         self.info_text.pack(pady=15, padx=15, fill=tk.BOTH, expand=True)
 
         self.set_tipo_jogada("movimento")
@@ -242,75 +244,7 @@ class JogoDamas:
             self.board_canvas.create_rectangle(x1, y1, x2, y2,
                                                  outline='#ffeb3b', width=5)
 
-    def desenhar_arvore(self):
-        self.tree_canvas.delete("all")
-
-        if not self.arvore.raiz:
-            self.tree_canvas.create_text(200, 150, text="🌳 Nenhuma jogada ainda",
-                                           font=('Arial', 16), fill='#7f8c8d')
-            return
-
-        node_width = 120
-        node_height = 40
-        level_height = 80
-        start_x = 200
-        start_y = 30
-
-        self._desenhar_no_arvore(self.arvore.raiz, start_x, start_y, node_width, node_height, level_height, 0)
-
-    def _desenhar_no_arvore(self, no, x, y, node_width, node_height, level_height, nivel):
-        if not no:
-            return
-
-        if no.tipo == 'movimento':
-            cor_fundo = '#4CAF50'
-            emoji = '📝'
-        else:
-            cor_fundo = '#f44336'
-            emoji = '⚔️'
-
-        x1 = x - node_width // 2
-        y1 = y - node_height // 2
-        x2 = x + node_width // 2
-        y2 = y + node_height // 2
-
-        self.tree_canvas.create_rectangle(x1 + 2, y1 + 2, x2 + 2, y2 + 2,
-                                          fill='#000000', outline='')
-
-        self.tree_canvas.create_rectangle(x1, y1, x2, y2,
-                                          fill=cor_fundo, outline='white', width=2)
-
-        texto = f"{emoji} {no.origem}→{no.destino}"
-        self.tree_canvas.create_text(x, y - 8, text=texto,
-                                     font=('Arial', 9, 'bold'), fill='white')
-
-        tipo_texto = no.tipo.upper()
-        self.tree_canvas.create_text(x, y + 8, text=tipo_texto,
-                                     font=('Arial', 8), fill='white')
-
-        offset_x = node_width * (2 ** (3 - nivel)) // 3
-
-        if no.filho_esquerdo:
-            child_x = x - offset_x
-            child_y = y + level_height
-
-            self.tree_canvas.create_line(x, y + node_height // 2,
-                                           child_x, child_y - node_height // 2,
-                                           fill='white', width=2)
-
-            self._desenhar_no_arvore(no.filho_esquerdo, child_x, child_y,
-                                     node_width, node_height, level_height, nivel + 1)
-
-        if no.filho_direito:
-            child_x = x + offset_x
-            child_y = y + level_height
-
-            self.tree_canvas.create_line(x, y + node_height // 2,
-                                           child_x, child_y - node_height // 2,
-                                           fill='white', width=2)
-
-            self._desenhar_no_arvore(no.filho_direito, child_x, child_y,
-                                     node_width, node_height, level_height, nivel + 1)
+    # --- MÉTODOS desenhar_arvore e _desenhar_no_arvore REMOVIDOS ---
 
     def on_board_click(self, event):
         cell_size = 50
@@ -344,12 +278,10 @@ class JogoDamas:
             destino_linha, destino_coluna = self.jogada_destino
 
             if self.validar_jogada():
-                # 1. Executar o movimento no tabuleiro
                 peca = self.tabuleiro[origem_linha][origem_coluna]
                 self.tabuleiro[origem_linha][origem_coluna] = None
                 self.tabuleiro[destino_linha][destino_coluna] = peca
 
-                # 2. Verificar Promoção
                 if peca == 'P' and destino_linha == 7:
                     peca = 'PD'
                     self.tabuleiro[destino_linha][destino_coluna] = 'PD'
@@ -359,7 +291,6 @@ class JogoDamas:
                     self.tabuleiro[destino_linha][destino_coluna] = 'BD'
                     self.info_text.insert(tk.END, f"👑 PROMOÇÃO! Peça Branca virou Dama!\n")
 
-                # 3. Executar Captura
                 if self.tipo_jogada == 'captura':
                     if self.peca_capturada_coord:
                         l_cap, c_cap = self.peca_capturada_coord
@@ -368,36 +299,29 @@ class JogoDamas:
                     else:
                         self.info_text.insert(tk.END, f"⚠️ Erro na captura: Coordenadas não encontradas.\n")
 
-                # 4. Adicionar à Árvore e Log
                 jogada = Jogada(self.jogada_origem, self.jogada_destino, self.tipo_jogada)
                 self.arvore.inserir_jogada(jogada)
-                self.todas_jogadas.append(jogada)
+                self.todas_jogADAS.append(jogada)
+
                 self.info_text.insert(tk.END,
                                       f"✅ Jogada executada: {self.tipo_jogada.upper()} de {self.jogada_origem} para {self.jogada_destino}\n")
 
-                # 5. LÓGICA DE FIM DE TURNO / CAPTURA MÚLTIPLA
                 if self.tipo_jogada == 'captura':
-                    # Verificar se há mais capturas da nova posição
                     novas_capturas = self._buscar_capturas_disponiveis(destino_linha, destino_coluna)
                     
                     if novas_capturas:
-                        # CAPTURA MÚLTIPLA!
                         self.info_text.insert(tk.END, "🔥 CAPTURA MÚLTIPLA! Realize a próxima.\n")
-                        # Prender o estado para a próxima jogada
                         self.peca_em_captura_multipla = (destino_linha, destino_coluna)
-                        self.jogada_origem = (destino_linha, destino_coluna) # A próxima origem TEM de ser esta
+                        self.jogada_origem = (destino_linha, destino_coluna)
                         self.jogada_destino = None
-                        self.set_tipo_jogada("captura") # Forçar modo de captura
+                        self.set_tipo_jogada("captura")
                         self.atualizar_display()
-                        # NÃO trocar o jogador
                     else:
-                        # Foi uma captura, mas foi a última. Fim do turno.
                         self.info_text.insert(tk.END, "Turno finalizado.\n")
                         self.jogador = 'B' if self.jogador == 'P' else 'P'
-                        self.limpar_selecao() # Limpa tudo, incluindo peca_em_captura_multipla
+                        self.limpar_selecao()
                         self.atualizar_display()
                 else:
-                    # Foi um movimento simples. Fim do turno.
                     self.jogador = 'B' if self.jogador == 'P' else 'P'
                     self.limpar_selecao()
                     self.atualizar_display()
@@ -405,64 +329,53 @@ class JogoDamas:
                 self.verificar_fim_jogo()
             
             else:
-                # JOGADA INVÁLIDA
                 self.info_text.insert(tk.END, f"❌ Jogada inválida!\n")
                 
                 if self.peca_em_captura_multipla:
-                    # Estava numa captura múltipla, não limpar o estado.
-                    # Apenas limpar o destino que foi clicado errado.
                     self.jogada_destino = None
                     self.info_text.insert(tk.END, f"❗️ Deve completar a captura de {self.jogada_origem}\n")
-                    self.atualizar_display() # Redesenha, mantendo a origem selecionada
+                    self.atualizar_display()
                 else:
-                    # Era uma jogada normal inválida, limpar tudo.
                     self.limpar_selecao()
     
     def _buscar_capturas_disponiveis(self, l_origem, c_origem):
-        """Verifica se há capturas válidas a partir de uma posição."""
-        
-        # Salvar estado atual (porque vamos simular)
         origem_original = self.jogada_origem
         destino_original = self.jogada_destino
         tipo_original = self.tipo_jogada
 
         peca = self.tabuleiro[l_origem][c_origem]
         if not peca:
-            return [] # Posição vazia
+            return []
 
         capturas_possiveis = []
         
-        # Definir direções (passos)
         direcoes_passos = [(-1, -1), (-1, 1), (1, -1), (1, 1)]
         
         for step_l, step_c in direcoes_passos:
-            # 1. Verificar peças normais (só 1 direção, distância 2)
-            if peca == 'P' and step_l < 0: continue # 'P' só para baixo
-            if peca == 'B' and step_l > 0: continue # 'B' só para cima
+            if peca == 'P' and step_l < 0: continue
+            if peca == 'B' and step_l > 0: continue
 
             if peca in ('P', 'B'):
-                distancias = [2] # Só pode saltar 2 casas
-            else: # Dama
-                distancias = range(2, 8) # Distâncias de 2 a 7
+                distancias = [2]
+            else:
+                distancias = range(2, 8)
 
             for dist in distancias:
                 l_dest = l_origem + (step_l * dist)
                 c_dest = c_origem + (step_c * dist)
                 
-                # Simular a jogada para validação
                 self.jogada_origem = (l_origem, c_origem)
                 self.jogada_destino = (l_dest, c_dest)
-                self.tipo_jogada = 'captura' # Forçar verificação de captura
+                self.tipo_jogada = 'captura'
 
-                if 0 <= l_dest < 8 and 0 <= c_dest < 8: # Verificação rápida de limites
+                if 0 <= l_dest < 8 and 0 <= c_dest < 8:
                     if self.validar_jogada():
                         capturas_possiveis.append((l_dest, c_dest))
-                        if peca in ('P', 'B'): # Peças normais só têm 1 captura por direção
+                        if peca in ('P', 'B'):
                             break
                 else:
-                    break # Saiu do tabuleiro, não adianta continuar nessa direção
+                    break
 
-        # Restaurar estado original
         self.jogada_origem = origem_original
         self.jogada_destino = destino_original
         self.tipo_jogada = tipo_original
@@ -590,7 +503,7 @@ class JogoDamas:
 
     def atualizar_display(self):
         self.desenhar_tabuleiro()
-        self.desenhar_arvore()
+        # A chamada self.desenhar_arvore() foi removida daqui
 
         pretas = sum(1 for linha in self.tabuleiro for casa in linha if casa in ('P', 'PD'))
         brancas = sum(1 for linha in self.tabuleiro for casa in linha if casa in ('B', 'BD'))
